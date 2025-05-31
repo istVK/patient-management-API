@@ -2,16 +2,18 @@ package com.healthcare.patientmanagementapi.controller;
 
 
 
+import com.healthcare.patientmanagementapi.DTO.PatientRequestDTO;
 import com.healthcare.patientmanagementapi.model.Patient;
 import com.healthcare.patientmanagementapi.service.PatientService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/patient")
-public class patientController {
+@RequestMapping("/api/patients")
+public class PatientController {
 
 
     private final PatientService patientService;
@@ -19,7 +21,7 @@ public class patientController {
     //constructor injection for patient services
 
     @Autowired
-    public patientController(PatientService patientService) {
+    public PatientController(PatientService patientService) {
         this.patientService = patientService;
     }
 
@@ -33,12 +35,23 @@ public class patientController {
 
     //Endpoint to create a new patient
     @PostMapping
-    public Patient createPatient(@RequestBody Patient patient){
+    public Patient createPatient(@Valid @RequestBody PatientRequestDTO patientRequestDTO) {
+        Patient patient = Patient.builder()
+                .name(patientRequestDTO.getName())
+                .surname(patientRequestDTO.getSurname())
+                .email(patientRequestDTO.getEmail())
+                .age(patientRequestDTO.getAge())
+                .gender(patientRequestDTO.getGender())
+                .diagnosis(patientRequestDTO.getDiagnosis())
+                .address(patientRequestDTO.getAddress())
+                .build();
+
         return patientService.createPatient(patient);
     }
 
+
     //endpoint to get all patients
-    @GetMapping("/all")
+    @GetMapping
     public List<Patient> getAllPatients(){
         return patientService.getAllPatients();
     }

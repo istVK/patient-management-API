@@ -2,6 +2,9 @@ package com.healthcare.patientmanagementapi.service.impl;
 
 
 
+import com.healthcare.patientmanagementapi.DTO.PatientRequestDTO;
+import com.healthcare.patientmanagementapi.DTO.PatientResponseDTO;
+import com.healthcare.patientmanagementapi.exception.ResourceNotFoundException;
 import com.healthcare.patientmanagementapi.model.Patient;
 import com.healthcare.patientmanagementapi.repository.PatientRepository;
 import com.healthcare.patientmanagementapi.service.PatientService;
@@ -31,19 +34,33 @@ public class PatientServiceImpl implements PatientService {
 
     @Override
     public Patient getPatientById(Long id){
-        Optional<Patient> patient = patientRepository.findById(id);
-        return patient.orElse(null);
+        return patientRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Patient not found with id: " + id));
     }
 
     @Override
     public Patient updatePatient(Long id, Patient patient){
-        patient.setId(id);
-        return patientRepository.save(patient);
+        Patient existingPatient = patientRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Patient not found with id: " + id));
+
+        existingPatient.setName(patient.getName());
+        existingPatient.setSurname(patient.getSurname());
+        existingPatient.setEmail(patient.getEmail());
+        existingPatient.setAge(patient.getAge());
+        existingPatient.setGender(patient.getGender());
+        existingPatient.setDiagnosis(patient.getDiagnosis());
+        existingPatient.setAddress(patient.getAddress());
+
+        return patientRepository.save(existingPatient);
     }
 
     @Override
     public void deletePatientById(Long id){
-        patientRepository.deleteById(id);
+
+        Patient existingPatient = patientRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Patient not found with id: " + id));
+
+        patientRepository.delete(existingPatient);
     }
 
 
@@ -83,5 +100,35 @@ public class PatientServiceImpl implements PatientService {
         } else {
             return null; // You can return a custom error or exception if patient not found
         }
+    }
+
+
+    // Convert DTO to Entity
+    private Patient mapToEntity(PatientRequestDTO dto){
+        return Patient.builder()
+                .name(dto.getName())
+                .surname(dto.getSurname())
+                .email(dto.getEmail())
+                .age(dto.getAge())
+                .gender(dto.getGender())
+                .diagnosis(dto.getDiagnosis())
+                .address(dto.getAddress())
+                .build();
+
+    }
+
+    // Convert Entity to DTO
+
+    private PatientResponseDTO maptoDTO(Patient patient){
+        return PatientResponseDTO.builder()
+                .id(patient.getId())
+                .name(patient.getName())
+                .surname(patient.getSurname())
+                .email(patient.getEmail())
+                .age(patient.getAge())
+                .gender(patient.getGender())
+                .diagnosis(patient.getDiagnosis())
+                .address(patient.getAddress())
+                .build();
     }
 }
