@@ -6,6 +6,7 @@ package com.healthcare.patientmanagementapi.service.impl;
 import com.healthcare.patientmanagementapi.DTO.PatientRequestDTO;
 import com.healthcare.patientmanagementapi.DTO.PatientResponseDTO;
 import com.healthcare.patientmanagementapi.exception.ResourceNotFoundException;
+import com.healthcare.patientmanagementapi.mapper.PatientMapper;
 import com.healthcare.patientmanagementapi.model.Patient;
 import com.healthcare.patientmanagementapi.repository.PatientRepository;
 import com.healthcare.patientmanagementapi.service.PatientService;
@@ -29,134 +30,81 @@ public class PatientServiceImpl implements PatientService {
     private final PatientRepository patientRepository;
 
     @Override
-    public PatientResponseDTO createPatient(Patient patient){
-        logger.info("Creating a new patient: {}", patient.getName());
-        Patient savedPatient = patientRepository.save(patient);
+    public PatientResponseDTO createPatient(PatientRequestDTO patientRequestDTO){
+        logger.info("Creating a new patient: {}", patientRequestDTO.getName());
+        Patient newPatient = PatientMapper.maptoEntity(patientRequestDTO);
+        Patient savedPatient = patientRepository.save(newPatient);
         logger.debug("Saved patient details: {}", savedPatient);
-        return maptoDTO(savedPatient);
+        return PatientMapper.maptoDTO(savedPatient);
     }
 
     @Override
-    public List<PatientResponseDTO> getAllPatients(){
-        logger.info("Getting information about all patients");
+    public List<PatientResponseDTO> getAllPatients() {
+        logger.info("Retrieving all patients");
         List<Patient> patients = patientRepository.findAll();
-        logger.debug("Total Patients Found:{}", patients.size());
-        return patients.stream().map(this::maptoDTO).collect(Collectors.toList());
+        logger.debug("Found {} patients", patients.size());
+        return patients.stream()
+                .map(PatientMapper::maptoDTO)
+                .collect(Collectors.toList());
     }
 
     @Override
     public PatientResponseDTO getPatientById(Long id) {
-        logger.info("Fetching patient with id {}", id);
+        logger.info("Fetching patient with ID: {}", id);
         Patient patient = patientRepository.findById(id)
-                .orElseThrow(() ->  {logger.error("Patient not found with id {}", id);
-                return new ResourceNotFoundException("Patient not found with id " + id);
-                });
-
-        logger.debug("Patient details: {}", patient);
-        return maptoDTO(patient);
+                .orElseThrow(() -> new ResourceNotFoundException("Patient not found with id " + id));
+        return PatientMapper.maptoDTO(patient);
     }
 
     @Override
-    public PatientResponseDTO  updatePatient(Long id, Patient patient){
+    public PatientResponseDTO updatePatient(Long id, PatientRequestDTO patientRequestDTO) {
         logger.info("Updating patient with ID: {}", id);
         Patient existingPatient = patientRepository.findById(id)
-                .orElseThrow(() -> {
-                    logger.error("Patient not found for update with ID: {}", id);
-                    return new ResourceNotFoundException("Patient not found with id " + id);
-                });
-        existingPatient.setName(patient.getName());
-        existingPatient.setSurname(patient.getSurname());
-        existingPatient.setEmail(patient.getEmail());
-        existingPatient.setAge(patient.getAge());
-        existingPatient.setGender(patient.getGender());
-        existingPatient.setDiagnosis(patient.getDiagnosis());
-        existingPatient.setAddress(patient.getAddress());
+                .orElseThrow(() -> new ResourceNotFoundException("Patient not found with id " + id));
 
-        Patient saved = patientRepository.save(existingPatient);
-        logger.debug("Updated patient details: {}", saved);
-        return maptoDTO(saved);
+        existingPatient.setName(patientRequestDTO.getName());
+        existingPatient.setSurname(patientRequestDTO.getSurname());
+        existingPatient.setEmail(patientRequestDTO.getEmail());
+        existingPatient.setAge(patientRequestDTO.getAge());
+        existingPatient.setGender(patientRequestDTO.getGender());
+        existingPatient.setDiagnosis(patientRequestDTO.getDiagnosis());
+        existingPatient.setAddress(patientRequestDTO.getAddress());
+
+        Patient updatedPatient = patientRepository.save(existingPatient);
+        return PatientMapper.maptoDTO(updatedPatient);
     }
 
     @Override
-    public void deletePatientById(Long id){
-        logger.info("Attempting to delete patient with ID: {}", id);
-        Patient existingPatient = patientRepository.findById(id)
-                .orElseThrow(() -> {
-                    logger.error("Patient not found for deletion with ID: {}", id);
-                    return new ResourceNotFoundException("Patient not found with id " + id);
-                });
-        patientRepository.delete(existingPatient);
-        logger.info("Patient deleted successfully with ID: {}", id);
+    public void deletePatientById(Long id) {
+        logger.info("Deleting patient with ID: {}", id);
+        if (!patientRepository.existsById(id)) {
+            throw new ResourceNotFoundException("Patient not found with id " + id);
+        }
+        patientRepository.deleteById(id);
     }
-
 
     @Override
-    public PatientResponseDTO updatePatientPartially(Long id, Patient patientDetails) {
+    public PatientResponseDTO updatePatientPartially(Long id, PatientRequestDTO  patientDetails) {
+        logger.info("Partially updating patient with ID: {}", id);
+        Patient patient = patientRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Patient not found with id " + id));
 
-        logger.info("Performing partial update for patient with ID: {}", id);
-        Patient existingPatient = patientRepository.findById(id)
-                .orElseThrow(() ->{ logger.error("Patient not found for partial update with ID: {}", id);
-                    return new ResourceNotFoundException("Patient not found with id: " + id);
-                });
+        if (patientDetails.getName() != null) patient.setName(patientDetails.getName());
+        if (patientDetails.getSurname() != null) patient.setSurname(patientDetails.getSurname());
+        if (patientDetails.getEmail() != null) patient.setEmail(patientDetails.getEmail());
+        if (patientDetails.getAge() != null) patient.setAge(patientDetails.getAge());
+        if (patientDetails.getGender() != null) patient.setGender(patientDetails.getGender());
+        if (patientDetails.getDiagnosis() != null) patient.setDiagnosis(patientDetails.getDiagnosis());
+        if (patientDetails.getAddress() != null) patient.setAddress(patientDetails.getAddress());
 
-        // Only update the fields that are not null in patientDetails
-        if (patientDetails.getName() != null) {
-            existingPatient.setName(patientDetails.getName());
-        }
-        if (patientDetails.getSurname() != null) {
-            existingPatient.setSurname(patientDetails.getSurname());
-        }
-        if (patientDetails.getEmail() != null) {
-            existingPatient.setEmail(patientDetails.getEmail());
-        }
-        if (patientDetails.getAge() != null) {
-            existingPatient.setAge(patientDetails.getAge());
-        }
-        if (patientDetails.getGender() != null) {
-            existingPatient.setGender(patientDetails.getGender());
-        }
-        if (patientDetails.getDiagnosis() != null) {
-            existingPatient.setDiagnosis(patientDetails.getDiagnosis());
-        }
-        if (patientDetails.getAddress() != null) {
-            existingPatient.setAddress(patientDetails.getAddress());
-        }
-
-        // Save updated patient
-        Patient savedPatient = patientRepository.save(existingPatient);
-        logger.debug("Partially updated patient: {}", savedPatient);
-        // Map to DTO and return
-        return maptoDTO(savedPatient);
+        Patient updatedPatient = patientRepository.save(patient);
+        return PatientMapper.maptoDTO(updatedPatient);
     }
 
 
 
-    // Convert DTO to Entity
-    private Patient mapToEntity(PatientRequestDTO dto){
-        return Patient.builder()
-                .name(dto.getName())
-                .surname(dto.getSurname())
-                .email(dto.getEmail())
-                .age(dto.getAge())
-                .gender(dto.getGender())
-                .diagnosis(dto.getDiagnosis())
-                .address(dto.getAddress())
-                .build();
+    // Convert DTO to Entity && Convert Entity to DTO will Be Handled in Utility Mapper
 
-    }
 
-    // Convert Entity to DTO
 
-    private PatientResponseDTO maptoDTO(Patient patient){
-        return PatientResponseDTO.builder()
-                .id(patient.getId())
-                .name(patient.getName())
-                .surname(patient.getSurname())
-                .email(patient.getEmail())
-                .age(patient.getAge())
-                .gender(patient.getGender())
-                .diagnosis(patient.getDiagnosis())
-                .address(patient.getAddress())
-                .build();
-    }
 }

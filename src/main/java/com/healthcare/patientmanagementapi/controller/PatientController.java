@@ -38,17 +38,7 @@ public class PatientController {
     //Endpoint to create a new patient
     @PostMapping
     public ResponseEntity<PatientResponseDTO> createPatient(@Valid @RequestBody PatientRequestDTO patientRequestDTO) {
-        Patient patient = Patient.builder()
-                .name(patientRequestDTO.getName())
-                .surname(patientRequestDTO.getSurname())
-                .email(patientRequestDTO.getEmail())
-                .age(patientRequestDTO.getAge())
-                .gender(patientRequestDTO.getGender())
-                .diagnosis(patientRequestDTO.getDiagnosis())
-                .address(patientRequestDTO.getAddress())
-                .build();
-
-        PatientResponseDTO response = patientService.createPatient(patient);
+        PatientResponseDTO response = patientService.createPatient(patientRequestDTO);
         return ResponseEntity.status(201).body(response);
     }
 
@@ -71,17 +61,8 @@ public class PatientController {
     @PutMapping("/{id}")
     public ResponseEntity<PatientResponseDTO> updatePatient(@PathVariable Long id,
                                                             @RequestBody PatientRequestDTO patientRequestDTO) {
-        Patient updatedData = Patient.builder()
-                .name(patientRequestDTO.getName())
-                .surname(patientRequestDTO.getSurname())
-                .email(patientRequestDTO.getEmail())
-                .age(patientRequestDTO.getAge())
-                .gender(patientRequestDTO.getGender())
-                .diagnosis(patientRequestDTO.getDiagnosis())
-                .address(patientRequestDTO.getAddress())
-                .build();
 
-        PatientResponseDTO updated = patientService.updatePatient(id, updatedData);
+        PatientResponseDTO updated = patientService.updatePatient(id, patientRequestDTO);
         return ResponseEntity.ok(updated);
 }
     //delete a patient details
@@ -98,17 +79,7 @@ public class PatientController {
     @PatchMapping("/{id}")
     public ResponseEntity<PatientResponseDTO> updatePatientPartially(@PathVariable Long id,
                                                                      @RequestBody PatientRequestDTO partialDTO) {
-        Patient partialUpdate = Patient.builder()
-                .name(partialDTO.getName())
-                .surname(partialDTO.getSurname())
-                .email(partialDTO.getEmail())
-                .age(partialDTO.getAge())
-                .gender(partialDTO.getGender())
-                .diagnosis(partialDTO.getDiagnosis())
-                .address(partialDTO.getAddress())
-                .build();
-
-        PatientResponseDTO updated = patientService.updatePatientPartially(id, partialUpdate);
+        PatientResponseDTO updated = patientService.updatePatientPartially(id, partialDTO);
         return ResponseEntity.ok(updated);
     }
 }
