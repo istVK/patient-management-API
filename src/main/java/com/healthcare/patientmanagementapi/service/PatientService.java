@@ -1,14 +1,15 @@
 package com.healthcare.patientmanagementapi.service;
 
+import com.healthcare.patientmanagementapi.DTO.PatientResponseDTO;
 import com.healthcare.patientmanagementapi.model.Patient;
 
 import java.util.List;
 
 public interface PatientService {
-    Patient createPatient (Patient patient);
-    List<Patient> getAllPatients();
-    Patient getPatientById(Long id);
-    Patient updatePatient(Long id, Patient patient);
-    Patient updatePatientPartially(Long id, Patient patientDetails);
+    PatientResponseDTO createPatient (Patient patient);
+    List<PatientResponseDTO> getAllPatients();
+    PatientResponseDTO getPatientById(Long id);
+    PatientResponseDTO updatePatient(Long id, Patient patient);
+    PatientResponseDTO updatePatientPartially(Long id, Patient patientDetails);
     void deletePatientById(Long id);
 }
