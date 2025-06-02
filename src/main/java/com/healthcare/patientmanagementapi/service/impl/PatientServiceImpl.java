@@ -11,6 +11,11 @@ import com.healthcare.patientmanagementapi.model.Patient;
 import com.healthcare.patientmanagementapi.repository.PatientRepository;
 import com.healthcare.patientmanagementapi.service.PatientService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,6 +34,7 @@ public class PatientServiceImpl implements PatientService {
 
     private final PatientRepository patientRepository;
 
+
     @Override
     public PatientResponseDTO createPatient(PatientRequestDTO patientRequestDTO){
         logger.info("Creating a new patient: {}", patientRequestDTO.getName());
@@ -39,11 +45,12 @@ public class PatientServiceImpl implements PatientService {
     }
 
     @Override
-    public List<PatientResponseDTO> getAllPatients() {
+    public List<PatientResponseDTO> getAllPatients(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
         logger.info("Retrieving all patients");
-        List<Patient> patients = patientRepository.findAll();
-        logger.debug("Found {} patients", patients.size());
-        return patients.stream()
+        Page<Patient> patientPage = patientRepository.findAll(pageable);
+        logger.debug("Found {} patients", size);
+        return patientPage.stream()
                 .map(PatientMapper::maptoDTO)
                 .collect(Collectors.toList());
     }
@@ -100,6 +107,33 @@ public class PatientServiceImpl implements PatientService {
         Patient updatedPatient = patientRepository.save(patient);
         return PatientMapper.maptoDTO(updatedPatient);
     }
+
+
+
+    @Override
+    public List<PatientResponseDTO> getAllPatientsSorted(String sortBy) {
+        logger.info("Retrieving all patients sorted: {}", sortBy);
+        Sort sort =Sort.by(Sort.Direction.ASC,sortBy);
+        List<Patient> sortedPatients  = patientRepository.findAll(sort);
+        return sortedPatients.stream().map(PatientMapper::maptoDTO).collect(Collectors.toList());
+    }
+
+    @Override
+    public List<PatientResponseDTO> filterPatients(Integer age, String gender, String diagnosis) {
+        List<Patient> filtered = patientRepository.filterPatients(age, gender, diagnosis);
+        return filtered.stream()
+                .map(PatientMapper::maptoDTO)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public Page<PatientResponseDTO> filterPatientsPaged(Integer age, String gender, String diagnosis, Pageable pageable) {
+        Page<Patient> filteredPage = patientRepository.findByFilters(age, gender, diagnosis, pageable);
+        return filteredPage.map(PatientMapper::maptoDTO);
+    }
+
+
+
 
 
 

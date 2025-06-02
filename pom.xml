@@ -68,6 +68,13 @@
 			<version>8.0.1.Final</version>
 		</dependency>
 
+		<!-- Swagger/OpenAPI support using Springdoc -->
+		<dependency>
+			<groupId>org.springdoc</groupId>
+			<artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+			<version>2.5.0</version>
+		</dependency>
+
 	</dependencies>
 
 	<build>

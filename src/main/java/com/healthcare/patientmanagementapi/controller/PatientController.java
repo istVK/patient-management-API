@@ -8,6 +8,9 @@ import com.healthcare.patientmanagementapi.model.Patient;
 import com.healthcare.patientmanagementapi.service.PatientService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -45,8 +48,9 @@ public class PatientController {
 
     //endpoint to get all patients
     @GetMapping
-    public ResponseEntity<List<PatientResponseDTO>> getAllPatients(){
-        List<PatientResponseDTO> patients = patientService.getAllPatients();
+    public ResponseEntity<List<PatientResponseDTO>> getAllPatients(@RequestParam(defaultValue = "0") int page,
+                                                                   @RequestParam(defaultValue = "10") int size){
+        List<PatientResponseDTO> patients = patientService.getAllPatients(page,size);
         return ResponseEntity.ok(patients);
     }
 
@@ -60,7 +64,7 @@ public class PatientController {
     //update an existing patient
     @PutMapping("/{id}")
     public ResponseEntity<PatientResponseDTO> updatePatient(@PathVariable Long id,
-                                                            @RequestBody PatientRequestDTO patientRequestDTO) {
+                                                            @Valid @RequestBody PatientRequestDTO patientRequestDTO) {
 
         PatientResponseDTO updated = patientService.updatePatient(id, patientRequestDTO);
         return ResponseEntity.ok(updated);
@@ -74,7 +78,24 @@ public class PatientController {
         return ResponseEntity.noContent().build();
     }
 
+    @GetMapping("/sorted")
+    public ResponseEntity<List<PatientResponseDTO>> getPatientsSorted(
+            @RequestParam(defaultValue = "age") String sortBy) {
+        List<PatientResponseDTO> sortedPatients = patientService.getAllPatientsSorted(sortBy);
+        return ResponseEntity.ok(sortedPatients);
+    }
 
+    @GetMapping("/filter")
+    public ResponseEntity<List<PatientResponseDTO>> filterPatients(
+
+            @RequestParam(required = false) Integer age,
+            @RequestParam(required = false) String gender,
+            @RequestParam(required = false) String diagnosis)
+    {
+
+        List<PatientResponseDTO> filtered = patientService.filterPatients(age, gender, diagnosis);
+        return ResponseEntity.ok(filtered);
+    }
     // PATCH: Update specific fields of a patient by ID
     @PatchMapping("/{id}")
     public ResponseEntity<PatientResponseDTO> updatePatientPartially(@PathVariable Long id,
@@ -82,4 +103,22 @@ public class PatientController {
         PatientResponseDTO updated = patientService.updatePatientPartially(id, partialDTO);
         return ResponseEntity.ok(updated);
     }
+
+    @GetMapping("/filter-paged")
+    public  ResponseEntity<List<PatientResponseDTO>> filterPatientsPaged(
+            @RequestParam(required = false) Integer age,
+            @RequestParam(required = false) String gender,
+            @RequestParam(required = false) String diagnosis,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<PatientResponseDTO> filteredPage = patientService.filterPatientsPaged(age, gender, diagnosis, pageable);
+        return ResponseEntity.ok(filteredPage.getContent());
+    }
+
+
+
+
+
 }

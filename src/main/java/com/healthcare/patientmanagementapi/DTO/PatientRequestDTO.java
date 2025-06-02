@@ -24,8 +24,13 @@ public class PatientRequestDTO {
     @Min(value = 0, message="Age must be positive")
     private Integer age;
 
+    @Pattern(
+            regexp = "(?i)^(male|female|other)$",
+            message = "Gender must be Male, Female, or Other"
+    )
     @NotBlank(message = "Gender is Required")
     private String gender;
+
 
     @NotBlank(message = "Diagnosis is Required")
     private String diagnosis;
