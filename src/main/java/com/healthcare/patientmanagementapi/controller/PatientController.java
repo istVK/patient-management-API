@@ -1,7 +1,7 @@
 package com.healthcare.patientmanagementapi.controller;
 
 
-
+import org.springframework.security.access.prepost.PreAuthorize;
 import com.healthcare.patientmanagementapi.DTO.PatientRequestDTO;
 import com.healthcare.patientmanagementapi.DTO.PatientResponseDTO;
 import com.healthcare.patientmanagementapi.model.Patient;
@@ -39,6 +39,7 @@ public class PatientController {
 
 
     //Endpoint to create a new patient
+    @PreAuthorize("hasRole('ADMIN') or hasRole('DOCTOR')")
     @PostMapping
     public ResponseEntity<PatientResponseDTO> createPatient(@Valid @RequestBody PatientRequestDTO patientRequestDTO) {
         PatientResponseDTO response = patientService.createPatient(patientRequestDTO);
@@ -47,6 +48,7 @@ public class PatientController {
 
 
     //endpoint to get all patients
+    @PreAuthorize("hasRole('ADMIN') or hasRole('DOCTOR')")
     @GetMapping
     public ResponseEntity<List<PatientResponseDTO>> getAllPatients(@RequestParam(defaultValue = "0") int page,
                                                                    @RequestParam(defaultValue = "10") int size){
@@ -55,6 +57,7 @@ public class PatientController {
     }
 
     // endpoint to get patient by ID
+    @PreAuthorize("hasRole('ADMIN') or hasRole('DOCTOR') or hasRole('RECEPTIONIST')")
     @GetMapping("/{id}")
     public ResponseEntity<PatientResponseDTO> getPatientById(@PathVariable Long id) {
         PatientResponseDTO patient = patientService.getPatientById(id);
@@ -62,6 +65,7 @@ public class PatientController {
     }
 
     //update an existing patient
+    @PreAuthorize("hasRole('ADMIN') or hasRole('DOCTOR')")
     @PutMapping("/{id}")
     public ResponseEntity<PatientResponseDTO> updatePatient(@PathVariable Long id,
                                                             @Valid @RequestBody PatientRequestDTO patientRequestDTO) {
@@ -70,7 +74,7 @@ public class PatientController {
         return ResponseEntity.ok(updated);
 }
     //delete a patient details
-
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
 
     public ResponseEntity<Void> deletePatientById(@PathVariable Long id){
@@ -97,6 +101,7 @@ public class PatientController {
         return ResponseEntity.ok(filtered);
     }
     // PATCH: Update specific fields of a patient by ID
+    @PreAuthorize("hasRole('ADMIN') or hasRole('DOCTOR')")
     @PatchMapping("/{id}")
     public ResponseEntity<PatientResponseDTO> updatePatientPartially(@PathVariable Long id,
                                                                      @RequestBody PatientRequestDTO partialDTO) {
