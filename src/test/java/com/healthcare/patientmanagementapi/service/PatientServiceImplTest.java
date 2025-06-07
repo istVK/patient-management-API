@@ -173,33 +173,26 @@ public class PatientServiceImplTest {
         patientService.deletePatientById(2L);
 
         verify(patientRepository, times(1)).existsById(2L);
-        verify(patientRepository, never()).delete(any(Patient.class));
+//        verify(patientRepository, never()).delete(any(Patient.class));
+        verify(patientRepository, times(1)).deleteById(2L);
+
     }
+
 
     @Test
     public void testDeletePatient_NotFound() {
         Long patientId = 99L;
 
-        when(patientRepository.findById(patientId)).thenReturn(Optional.empty());
+        when(patientRepository.existsById(patientId)).thenReturn(false);
 
-        PatientRequestDTO updateDTO = PatientRequestDTO.builder()
-                .name("Ghost")
-                .surname("User")
-                .email("ghost@example.com")
-                .age(40)
-                .gender("Other")
-                .diagnosis("N/A")
-                .address("Nowhere")
-                .build();
+        ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class, () -> {
+            patientService.deletePatientById(patientId);
+        });
 
-        ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class,
-                () -> patientService.updatePatient(patientId, updateDTO)
-        );
+        assertEquals("Patient not found with id " + patientId, exception.getMessage());
 
-        assertEquals("Patient not found with id 99", exception.getMessage());
-
-        verify(patientRepository, times(1)).findById(patientId);
-        verify(patientRepository, never()).save(any(Patient.class));
+        verify(patientRepository, times(1)).existsById(patientId);
+        verify(patientRepository, never()).deleteById(anyLong());
     }
     @Test
     public void testGetAllPatients() {
