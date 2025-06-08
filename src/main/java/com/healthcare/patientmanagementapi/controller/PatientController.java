@@ -4,7 +4,6 @@ package com.healthcare.patientmanagementapi.controller;
 import org.springframework.security.access.prepost.PreAuthorize;
 import com.healthcare.patientmanagementapi.DTO.PatientRequestDTO;
 import com.healthcare.patientmanagementapi.DTO.PatientResponseDTO;
-import com.healthcare.patientmanagementapi.model.Patient;
 import com.healthcare.patientmanagementapi.service.PatientService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
