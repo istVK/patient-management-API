@@ -14,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/patients")
@@ -121,6 +122,20 @@ public class PatientController {
         return ResponseEntity.ok(filteredPage.getContent());
     }
 
+    @GetMapping("/analytics/gender-count")
+    public ResponseEntity<Map<String, Long>> getGenderCount() {
+        return ResponseEntity.ok(patientService.getGenderCount());
+    }
+
+    @GetMapping("/analytics/diagnosis-count")
+    public ResponseEntity<Map<String, Long>> getDiagnosisCount() {
+        return ResponseEntity.ok(patientService.getDiagnosisCount());
+    }
+
+    @GetMapping("/analytics/age-range")
+    public ResponseEntity<Long> getAgeRangeCount(@RequestParam int min, @RequestParam int max) {
+        return ResponseEntity.ok(patientService.getCountByAgeRange(min, max));
+    }
 
 
 

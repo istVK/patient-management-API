@@ -10,6 +10,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Map;
 
 @Repository
 public interface PatientRepository extends JpaRepository<Patient, Long> {
@@ -32,5 +33,15 @@ public interface PatientRepository extends JpaRepository<Patient, Long> {
             @Param("diagnosis") String diagnosis,
             Pageable pageable
     );
+
+    @Query("SELECT p.gender AS key, COUNT(p) AS value FROM Patient p GROUP BY p.gender")
+    List<Map<String, Object>> countByGenderRaw();
+
+    @Query("SELECT p.diagnosis AS key, COUNT(p) AS value FROM Patient p GROUP BY p.diagnosis")
+    List<Map<String, Object>> countByDiagnosisRaw();
+
+    @Query("SELECT COUNT(p) FROM Patient p WHERE p.age BETWEEN :min AND :max")
+    Long countByAgeBetween(@Param("min") int min, @Param("max") int max);
+
 }
 

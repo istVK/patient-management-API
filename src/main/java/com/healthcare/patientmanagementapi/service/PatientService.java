@@ -7,6 +7,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 import java.util.List;
+import java.util.Map;
 
 public interface PatientService {
     PatientResponseDTO createPatient(PatientRequestDTO patientRequestDTO);
@@ -26,4 +27,10 @@ public interface PatientService {
     List<PatientResponseDTO> filterPatients(Integer age, String gender, String diagnosis);
 
     Page<PatientResponseDTO> filterPatientsPaged(Integer age, String gender, String diagnosis, Pageable pageable);
+
+    Map<String, Long> getGenderCount();
+    Map<String, Long> getDiagnosisCount();
+    Long getCountByAgeRange(int min, int max);
+
+
 }

@@ -1,41 +1,41 @@
-#version: '3.8'
-
-services:
-  mysql:
-    image: mysql:8.0
-#    container_name: mysql-db
-    environment:
-      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
-      MYSQL_DATABASE: ${DB_NAME}
-      MYSQL_USER: ${DB_USER}
-      MYSQL_PASSWORD: ${DB_PASSWORD}
-    ports:
-      - "3307:3306"
-    volumes:
-      - mysql_data:/var/lib/mysql
-    networks:
-      - backend
-
-  app:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    container_name: patient-api-app
-    ports:
-      - "9090:8080"
-    depends_on:
-      - mysql
-    environment:
-      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/${DB_NAME}
-      SPRING_DATASOURCE_USERNAME: ${DB_USER}
-      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
-    networks:
-      - backend
-
-volumes:
-  mysql_data:
-
-networks:
-  backend:
-
-
+##version: '3.8'
+#
+#services:
+#  mysql:
+#    image: mysql:8.0
+##    container_name: mysql-db
+#    environment:
+#      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+#      MYSQL_DATABASE: ${DB_NAME}
+#      MYSQL_USER: ${DB_USER}
+#      MYSQL_PASSWORD: ${DB_PASSWORD}
+#    ports:
+#      - "3307:3306"
+#    volumes:
+#      - mysql_data:/var/lib/mysql
+#    networks:
+#      - backend
+#
+#  app:
+#    build:
+#      context: .
+#      dockerfile: Dockerfile
+#    container_name: patient-api-app
+#    ports:
+#      - "9090:8080"
+#    depends_on:
+#      - mysql
+#    environment:
+#      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/${DB_NAME}
+#      SPRING_DATASOURCE_USERNAME: ${DB_USER}
+#      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
+#    networks:
+#      - backend
+#
+#volumes:
+#  mysql_data:
+#
+#networks:
+#  backend:
+#
+#

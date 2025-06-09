@@ -20,7 +20,9 @@ import org.springframework.stereotype.Service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -133,7 +135,33 @@ public class PatientServiceImpl implements PatientService {
     }
 
 
+    @Override
+    public Map<String, Long> getGenderCount() {
+        List<Map<String, Object>> results = patientRepository.countByGenderRaw();
 
+        return convertToMap(results);
+    }
+
+    @Override
+    public Map<String, Long> getDiagnosisCount() {
+        List<Map<String, Object>> results = patientRepository.countByDiagnosisRaw();
+        return convertToMap(results);
+    }
+
+    @Override
+    public Long getCountByAgeRange(int min, int max) {
+        return patientRepository.countByAgeBetween(min, max);
+    }
+
+    private Map<String, Long> convertToMap(List<Map<String, Object>> rawData) {
+        Map<String, Long> resultMap = new HashMap<>();
+        for (Map<String, Object> row : rawData) {
+            String key = (String) row.get("key");
+            Long value = (row.get("value") instanceof Long) ? (Long) row.get("value") : ((Number) row.get("value")).longValue();
+            resultMap.put(key, value);
+        }
+        return resultMap;
+    }
 
 
 
